@@ -53,7 +53,11 @@ class _MyHomePageState extends State<MyHomePage> {
     _transformationController.addListener(() {
       Size sourceSize = _imageSize!;
       RenderBox renderBox = _key.currentContext?.findRenderObject() as RenderBox;
-      Size cropperSize = renderBox.size;
+      double cropperSize = renderBox.size.width;
+      Size scaledSize = sourceSize.width > sourceSize.height
+          ? Size(sourceSize.width / sourceSize.height * cropperSize, cropperSize)
+          : Size(cropperSize, sourceSize.height / sourceSize.width * cropperSize);
+
       double cropperScale = _transformationController.value.entry(0, 0);
       double cropperX = _transformationController.value.entry(0, 3) * -1.0;
       double cropperY = _transformationController.value.entry(1, 3) * -1.0;
@@ -61,8 +65,8 @@ class _MyHomePageState extends State<MyHomePage> {
       setState(() {
         _cropping = Cropping(
           source: Rect.fromLTWH(
-            cropperX / cropperSize.width / cropperScale * sourceSize.width,
-            cropperY / cropperSize.width / cropperScale * sourceSize.width,
+            cropperX / scaledSize.width / cropperScale * sourceSize.width,
+            cropperY / scaledSize.height / cropperScale * sourceSize.height,
             sourceSize.shortestSide / cropperScale,
             sourceSize.shortestSide / cropperScale,
           ),
